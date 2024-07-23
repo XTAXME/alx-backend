@@ -1,30 +1,25 @@
 #!/usr/bin/env python3
+"""
+start and end
+"""
 
+
+from typing import Tuple, List, Dict, Any
 import csv
 import math
-from typing import List, Tuple, Dict, Any
 
 
-def index_range(page: int, page_size: int) -> Tuple[int, int]:
+def index_range(page: int, page_size: int) -> Tuple:
     """
-    Calculate the start and end indexes for pagination.
-
-    Args:
-        page (int): The page number, 1-indexed.
-        page_size (int): The number of items per page.
-
-    Returns:
-        tuple: A tuple containing the start index and end
-        index for the given page and page size.
+    start and end
     """
-    start_index = (page - 1) * page_size
-    end_index = page * page_size
-    return start_index, end_index
+    start = (page - 1) * page_size
+    end = page * page_size
+    return(start, end)
 
 
 class Server:
-    """
-    Server class to paginate a database of popular baby names.
+    """Server class to paginate a database of popular baby names.
     """
     DATA_FILE = "Popular_Baby_Names.csv"
 
@@ -32,48 +27,55 @@ class Server:
         self.__dataset = None
 
     def dataset(self) -> List[List]:
-        """Cached dataset"""
+        """Cached dataset
+        """
         if self.__dataset is None:
             with open(self.DATA_FILE) as f:
                 reader = csv.reader(f)
                 dataset = [row for row in reader]
-            self.__dataset = dataset[1:]  # Skip the header
+            self.__dataset = dataset[1:]
 
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        """Return a list of baby names for a given page and page size."""
-        assert isinstance(page, int) and page > 0, "must be + int"
-        assert isinstance(page_size, int) and page_size > 0, "must be + in"
-
-        start_index, end_index = index_range(page, page_size)
-        dataset = self.dataset()
-
-        return dataset[start_index:end_index]
+        """
+        get page
+        """
+        assert isinstance(page, int) and page > 0
+        assert isinstance(page_size, int) and page_size > 0
+        start, end = index_range(page, page_size)
+        data = self.dataset()
+        if start >= len(data):
+            return []
+        return data[start:end]
 
     def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict[str, Any]:
         """
-        Return a dictionary containing pagination details.
-
-        Args:
-            page (int): The page number, 1-indexed.
-            page_size (int): The number of items per page.
-
-        Returns:
-            dict: A dictionary containing pagination details.
+        get_hyper method
         """
-        data = self.get_page(page, page_size)
-        total_items = len(self.dataset())
-        total_pages = math.ceil(total_items / page_size)
+        returneddata = self.get_page(page, page_size)
+        start, end = index_range(page, page_size)
 
-        next_page = page + 1 if page < total_pages else None
-        prev_page = page - 1 if page > 1 else None
+        def next():
+            """
+            next method
+            """
+            if end < len(self.dataset()):
+                return page + 1
+            return None
 
+        def prev():
+            """
+            prev method
+            """
+            if start > 0:
+                return page - 1
+            return None
         return {
-            "page_size": len(data),
-            "page": page,
-            "data": data,
-            "next_page": next_page,
-            "prev_page": prev_page,
-            "total_pages": total_pages
+            'page_size': len(returneddata),
+            'page': page,
+            'data': returneddata,
+            'next_page': next(),
+            'prev_page': prev(),
+            'total_pages': math.ceil(len(self.dataset()) / page_size)
         }
