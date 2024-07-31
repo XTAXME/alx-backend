@@ -1,39 +1,37 @@
 #!/usr/bin/env python3
-"""Module Defining a simple Flask app
-"""
+"""Flask app"""
+
 from flask import Flask, render_template, request
-from flask_babel import Babel
-from typing import Optional
+from flask_babel import Babel, gettext as _
 
 
 class Config:
-    """class for configuring the flask app
+    """Configuration class for Flask-Babel.
     """
     LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = 'en'
+    BABEL_DEFAULT_TIMEZONE = 'UTC'
 
 
 app = Flask(__name__)
-app.config.from_object(Config())
+app.config.from_object(Config)
+
+babel = Babel(app)
 
 
-# @babel.localeselector
-def get_locale() -> Optional[str]:
-    """get the best matching locale from configured languages
+@babel.localeselector
+def get_locale() -> str:
+    """Determine the best match with our supported languages.
     """
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
-babel = Babel(app,
-              default_locale=Config.LANGUAGES[0],
-              default_timezone='UTC',
-              locale_selector=get_locale)
-
-
-@app.route('/', strict_slashes=False)
-def index() -> str:
-    """Return the app's index page
+@app.route('/')
+def display_hello_world() -> str:
+    """Outputs 'Welcome to Holberton' as page title and 'Hello world'
+    as header.
     """
-    return render_template('2-index.html')
+    return render_template('3-index.html')
 
 
 if __name__ == '__main__':

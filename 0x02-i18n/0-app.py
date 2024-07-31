@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Define a simple app
-"""
-from flask import Flask, render_template
+"""Basic Flask app."""
 
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 
-@app.route('/', strict_slashes=False)
-def index():
-    """Return the app's index page
+@app.route('/')
+def display_hello_world() -> str:
+    """Outputs “Welcome to Holberton” as page title and “Hello world”
+    as header.
     """
     return render_template('0-index.html')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
