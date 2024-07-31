@@ -1,38 +1,33 @@
 #!/usr/bin/env python3
-"""Flask app"""
-
+""" Parametrize templates """
 from flask import Flask, render_template, request
-from flask_babel import Babel, gettext as _
+from flask_babel import Babel
 
 
 class Config:
-    """Configuration class for Flask-Babel.
-    """
+    """ Config class """
+    DEBUG = True
     LANGUAGES = ["en", "fr"]
-    BABEL_DEFAULT_LOCALE = 'en'
-    BABEL_DEFAULT_TIMEZONE = 'UTC'
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
-
 babel = Babel(app)
 
 
 @babel.localeselector
 def get_locale() -> str:
-    """Determine the best match with our supported languages.
-    """
+    """ locale selector """
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 
 @app.route('/')
-def display_hello_world() -> str:
-    """Outputs 'Welcome to Holberton' as page title and 'Hello world'
-    as header.
-    """
-    return render_template('3-index.html')
+def index() -> str:
+    """ route """
+    return render_template("3-index.html")
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0", port="5000")
